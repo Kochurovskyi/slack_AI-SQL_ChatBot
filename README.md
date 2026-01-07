@@ -767,6 +767,114 @@ SELECT COUNT(DISTINCT app_name) FROM app_portfolio WHERE platform = 'Android'
 
 ---
 
+## Data Description
+
+The chatbot queries an **app portfolio database** containing mobile app analytics data. The database includes information about apps, their platforms, revenue, installs, and user acquisition costs across different countries.
+
+### Database Schema
+
+**Table**: `app_portfolio`
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | INTEGER | Primary key (auto-increment) |
+| `app_name` | TEXT | Name of the mobile app |
+| `platform` | TEXT | Platform: 'iOS' or 'Android' |
+| `date` | DATE | Date of the record |
+| `country` | TEXT | Country where the app was used |
+| `installs` | INTEGER | Number of app installs |
+| `in_app_revenue` | DECIMAL(10,2) | Revenue from in-app purchases |
+| `ads_revenue` | DECIMAL(10,2) | Revenue from advertisements |
+| `ua_cost` | DECIMAL(10,2) | User acquisition cost |
+
+**Indexes**: Created on `app_name`, `platform`, `date`, and `country` for query optimization.
+
+### Sample Data
+
+The database includes **50 sample records** covering various apps, platforms, countries, and time periods. Here's a sample of 5 rows:
+
+| app_name | platform | date | country | installs | in_app_revenue | ads_revenue | ua_cost |
+|----------|----------|------|---------|----------|----------------|-------------|---------|
+| Music Elite | iOS | 2025-03-10 | United States | 66,420 | 5,986.06 | 1,239.57 | 4,530.17 |
+| Shop Live | iOS | 2025-03-18 | Sweden | 63,630 | 1,589.39 | 9,626.67 | 3,430.36 |
+| Weather Fast | iOS | 2025-11-18 | Sweden | 27,217 | 6,479.28 | 1,997.37 | 1,963.74 |
+| Food Advanced | Android | 2025-10-07 | Japan | 82,312 | 1,725.01 | 1,448.34 | 3,806.98 |
+| Productivity | iOS | 2025-11-01 | India | 89,354 | 3,702.94 | 6,113.69 | 136.78 |
+
+**Full Dataset**: See [`data/sample_data.csv`](https://github.com/Kochurovskyi/slack_AI-SQL_ChatBot/blob/main/data/sample_data.csv) for all 50 records.
+
+**Data Characteristics:**
+- **Platforms**: iOS (21 apps) and Android (29 apps)
+- **Countries**: 15+ countries including United States, Sweden, Japan, India, Germany, etc.
+- **Date Range**: Records from 2025-01-06 to 2025-12-30
+- **Revenue Types**: Both in-app purchases and advertisement revenue
+- **Metrics**: Installs, revenue (in-app + ads), and user acquisition costs
+
+**Database File**: `data/app_portfolio.db` (SQLite)  
+**Schema Definition**: [`data/schema.sql`](data/schema.sql)  
+**Sample Data**: [`data/sample_data.csv`](data/sample_data.csv)
+
+---
+
+## Slack App Integration
+
+This chatbot is built using **Slack Bolt for Python** and follows Slack's AI Apps architecture for building intelligent assistants.
+
+### Slack AI Apps Framework
+
+This project implements Slack's **AI Apps** framework, which provides:
+- **Slack Assistant UI**: Dedicated side panel for AI interactions
+- **Thread-based Conversations**: Natural conversation flow in Slack threads
+- **Streaming Responses**: Real-time response streaming for better UX
+- **Feedback Integration**: Built-in feedback mechanisms
+
+### Reference Implementation
+
+This chatbot is based on the official Slack AI chatbot template:
+- **Template Repository**: [slack-samples/bolt-python-ai-chatbot](https://github.com/slack-samples/bolt-python-ai-chatbot)
+- **Architecture**: Follows Slack's recommended patterns for AI Apps
+- **Integration**: Uses Slack Assistant API and Socket Mode
+
+**Key Differences from Template:**
+- ✅ **Multi-Agent System**: Extends template with specialized agents
+- ✅ **SQL Database Integration**: Adds SQL query capabilities
+- ✅ **Memory Management**: Custom thread-based memory store
+- ✅ **CSV Export**: File upload functionality
+- ✅ **Cost Optimization**: Smart caching and compression
+
+### Slack Developer Resources
+
+**Developer Sandboxes:**
+- **Documentation**: [Slack Developer Sandboxes](https://docs.slack.dev/tools/developer-sandboxes/)
+- **Purpose**: Free sandbox environments for building and testing Slack apps
+- **Benefits**: Isolated testing without affecting production workspaces
+
+**AI Agents & Assistants:**
+- **Solution Guide**: [Slack AI Agents & Assistants](https://slack.dev/resource-solutions/solution-ai-agents-assistants)
+- **Overview**: Comprehensive guide to building AI-powered Slack apps
+- **Features**: Best practices, patterns, and implementation examples
+
+**Slack API Documentation:**
+- **AI Apps**: [Slack AI Apps Documentation](https://api.slack.com/docs/apps/ai)
+- **Bolt Framework**: [Slack Bolt for Python](https://slack.dev/bolt-python/)
+- **Assistant API**: [Slack Assistant API](https://api.slack.com/assistant)
+
+### Slack App Configuration
+
+**Manifest File**: [`manifest.json`](manifest.json)
+
+**Required Scopes:**
+- `app_mentions:read` - Respond to @mentions
+- `chat:write` - Send messages
+- `assistant:write` - Use Assistant API
+- `files:write` - Upload CSV files (optional, for CSV export)
+
+**Socket Mode**: Uses Socket Mode for local development (no ngrok required)
+
+**For detailed Slack setup, see:** [`SETUP_GUIDE.md`](SETUP_GUIDE.md)
+
+---
+
 ## Project Structure
 
 ```
