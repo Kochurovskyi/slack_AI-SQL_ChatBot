@@ -252,6 +252,161 @@ sequenceDiagram
 
 The system consists of **5 specialized agents** plus an orchestrator:
 
+### Architecture Pattern: Router with Unified SQL Query Agent
+
+**Design Pattern**: Router-based Multi-Agent Architecture with Unified SQL Query Agent
+
+**Key Design Principles:**
+- **Simplicity**: Unified SQL Query Agent handles all SQL operations (generation, execution, formatting) in a single agent
+- **Cost Efficiency**: Smart caching prevents token waste on CSV/SQL retrieval requests
+- **Maintainability**: Clear separation of concerns with specialized agents for different intents
+- **Modern Approach**: Uses `create_agent` from LangChain (modern ReAct agent pattern)
+
+**Architecture Components:**
+- **Agent Orchestrator**: Coordinator/service (not an agent) that coordinates agent execution and Slack integration
+- **Router Agent**: Classifies intent and routes to specialized agents
+- **SQL Query Agent**: Unified agent handling SQL generation, execution, and formatting
+- **CSV Export Agent**: Generates CSV from cached results (cost-efficient)
+- **SQL Retrieval Agent**: Retrieves cached SQL statements (cost-efficient)
+- **Off-Topic Handler**: Handles non-SQL questions
+
+**Why Unified SQL Query Agent?**
+
+**Design Choice**: Single agent handles SQL generation, execution, and formatting
+
+**Rationale:**
+- These steps are tightly coupled and sequential
+- Single agent handles the full SQL workflow efficiently
+- Reduces agent-to-agent communication overhead
+- Simpler state management
+- Lower token costs (fewer agent invocations)
+
+**Implementation:**
+- Uses `create_agent` with multiple tools:
+  - `generate_sql_tool`: Converts natural language to SQL (schema in system prompt)
+  - `execute_sql_tool`: Executes SQL query
+  - `format_result_tool`: Formats results (simple text vs. table)
+
+**Note**: Database schema is included in the system prompt (static), eliminating the need for `get_schema_tool`. This reduces token usage and simplifies the agent flow.
+
+### Multi-Agent System Diagram
+
+```mermaid
+graph TB
+    subgraph Input["User Input Layer"]
+        User[User Message<br/>Slack Thread]
+    end
+    
+    subgraph Router["Router Agent"]
+        RouterAgent[Router Agent<br/>Intent Classification]
+        RouterAgent -->|SQL_QUERY| RouteSQL[Route to SQL Query]
+        RouterAgent -->|CSV_EXPORT| RouteCSV[Route to CSV Export]
+        RouterAgent -->|SQL_RETRIEVAL| RouteRet[Route to SQL Retrieval]
+        RouterAgent -->|OFF_TOPIC| RouteOff[Route to Off-Topic]
+    end
+    
+    subgraph SQLAgent["SQL Query Agent"]
+        SQLQueryAgent[SQL Query Agent<br/>create_agent]
+        SQLGen[generate_sql_tool]
+        SQLExec[execute_sql_tool]
+        SQLFormat[format_result_tool]
+        
+        SQLQueryAgent -->|1. Generate| SQLGen
+        SQLGen -->|SQL Query| SQLExec
+        SQLExec -->|Results| SQLFormat
+        SQLFormat -->|Formatted| SQLOutput[Formatted Response]
+    end
+    
+    subgraph CSVAgent["CSV Export Agent"]
+        CSVExportAgent[CSV Export Agent<br/>create_agent]
+        GetCache[get_cached_results_tool]
+        GenCSV[generate_csv_tool]
+        
+        CSVExportAgent -->|1. Retrieve| GetCache
+        GetCache -->|Cached Data| GenCSV
+        GenCSV -->|CSV File| CSVOutput[CSV File Path]
+    end
+    
+    subgraph RetrievalAgent["SQL Retrieval Agent"]
+        SQLRetrievalAgent[SQL Retrieval Agent<br/>create_agent]
+        GetSQL[get_sql_history_tool]
+        
+        SQLRetrievalAgent -->|1. Retrieve| GetSQL
+        GetSQL -->|Cached SQL| SQLDisplay[Formatted SQL]
+    end
+    
+    subgraph OffTopicAgent["Off-Topic Handler"]
+        OffTopicHandler[Off-Topic Handler<br/>create_agent]
+        OffTopicHandler -->|Direct Response| OffTopicOutput[Polite Response]
+    end
+    
+    subgraph Services["Core Services"]
+        SQLService[SQLService<br/>Query Execution]
+        FormatService[FormattingService<br/>Result Formatting]
+        CSVService[CSVService<br/>CSV Generation]
+    end
+    
+    subgraph Storage["Storage Layer"]
+        MemoryStore[Memory Store<br/>Thread-based History]
+        Database[(SQLite Database<br/>app_portfolio)]
+    end
+    
+    subgraph Output["Output Layer"]
+        SlackResponse[Slack Response<br/>Formatted Message]
+        CSVUpload[CSV File Upload<br/>Slack API]
+    end
+    
+    %% User Input Flow
+    User --> RouterAgent
+    
+    %% Routing Flows
+    RouteSQL --> SQLQueryAgent
+    RouteCSV --> CSVExportAgent
+    RouteRet --> SQLRetrievalAgent
+    RouteOff --> OffTopicHandler
+    
+    %% SQL Agent Tool Integration
+    SQLGen -.->|Uses| SQLService
+    SQLExec -->|Queries| Database
+    SQLExec -.->|Uses| SQLService
+    SQLFormat -.->|Uses| FormatService
+    
+    %% CSV Agent Tool Integration
+    GetCache -.->|Reads| MemoryStore
+    GenCSV -.->|Uses| CSVService
+    
+    %% Retrieval Agent Tool Integration
+    GetSQL -.->|Reads| MemoryStore
+    
+    %% Memory Integration
+    SQLQueryAgent -.->|Read/Write| MemoryStore
+    RouterAgent -.->|Read| MemoryStore
+    SQLQueryAgent -.->|Store SQL & Results| MemoryStore
+    
+    %% Output Flows
+    SQLOutput --> SlackResponse
+    CSVOutput --> CSVUpload
+    SQLDisplay --> SlackResponse
+    OffTopicOutput --> SlackResponse
+    
+    %% Styling
+    classDef agent fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    classDef tool fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef service fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef storage fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
+    classDef output fill:#fce4ec,stroke:#880e4f,stroke-width:2px
+    
+    class SQLQueryAgent,CSVExportAgent,SQLRetrievalAgent,OffTopicHandler,RouterAgent agent
+    class SQLGen,SQLExec,SQLFormat,GetCache,GenCSV,GetSQL tool
+    class SQLService,FormatService,CSVService service
+    class MemoryStore,Database storage
+    class SlackResponse,CSVUpload,SQLOutput,CSVOutput,SQLDisplay,OffTopicOutput output
+```
+
+**For detailed architecture documentation, see:** [`docs/architecture.md`](docs/architecture.md)
+
+---
+
 ### 1. Router Agent
 **Purpose**: Classifies user intent and routes to appropriate specialized agents
 
