@@ -1,0 +1,13 @@
+slack-sdk==3.39.0
+slack-bolt==1.27.0
+
+# LLM Providers - OpenAI (primary) and Gemini (fallback)
+openai==2.14.0
+langchain>=0.3.0
+langchain-google-genai>=2.0.0
+langchain-core>=0.3.0
+
+pytest==9.0.2
+ruff==0.14.10
+python-dotenv==1.2.1
+langsmith>=0.1.0  # For LangSmith experiments and observability

@@ -1,0 +1,316 @@
+{
+  "timestamp": "2026-01-07T09:52:59.049834",
+  "scenarios": [
+    {
+      "scenario_id": "Q1.1",
+      "user_message": "how many apps do we have?",
+      "expected_intent": "SQL_QUERY",
+      "thread_ts": "test_Q1.1_1767768781.071285",
+      "actual_intent": "SQL_QUERY",
+      "response": "Mock response for: how many apps do we have?",
+      "passed": true,
+      "error": null,
+      "react_trace": [],
+      "routing_confidence": 0.8,
+      "sql_query": "SELECT COUNT(*) FROM app_portfolio"
+    },
+    {
+      "scenario_id": "Q1.2",
+      "user_message": "how many android apps do we have?",
+      "expected_intent": "SQL_QUERY",
+      "thread_ts": "test_Q1.2_1767768781.071285",
+      "actual_intent": "SQL_QUERY",
+      "response": "Mock response for: how many android apps do we have?",
+      "passed": true,
+      "error": null,
+      "react_trace": [],
+      "routing_confidence": 0.8,
+      "sql_query": "SELECT COUNT(*) FROM app_portfolio"
+    },
+    {
+      "scenario_id": "Q3.1",
+      "user_message": "export this as csv",
+      "expected_intent": "CSV_EXPORT",
+      "thread_ts": "test_Q3.1_1767768781.071285",
+      "actual_intent": "CSV_EXPORT",
+      "response": "CSV file generated successfully",
+      "passed": true,
+      "error": null,
+      "react_trace": [],
+      "routing_confidence": 0.9,
+      "csv_path": "/tmp/test_export.csv"
+    },
+    {
+      "scenario_id": "Q3.2",
+      "user_message": "export to csv",
+      "expected_intent": "CSV_EXPORT",
+      "thread_ts": "test_Q3.2_1767768781.071285",
+      "actual_intent": "CSV_EXPORT",
+      "response": "CSV file generated successfully",
+      "passed": true,
+      "error": null,
+      "react_trace": [],
+      "routing_confidence": 0.9,
+      "csv_path": "/tmp/test_export.csv"
+    },
+    {
+      "scenario_id": "Q3.3",
+      "user_message": "Export all apps to CSV",
+      "expected_intent": "CSV_EXPORT",
+      "thread_ts": "test_Q3.3_1767768781.072284",
+      "actual_intent": "CSV_EXPORT",
+      "response": "CSV file generated successfully",
+      "passed": true,
+      "error": null,
+      "react_trace": [],
+      "routing_confidence": 0.9,
+      "csv_path": "/tmp/test_export.csv"
+    },
+    {
+      "scenario_id": "Q4.1",
+      "user_message": "show me the SQL you used to retrieve all the apps",
+      "expected_intent": "SQL_RETRIEVAL",
+      "thread_ts": "test_Q4.1_1767768781.072284",
+      "actual_intent": "SQL_RETRIEVAL",
+      "response": "```sql\nSELECT COUNT(*) FROM app_portfolio\n```",
+      "passed": true,
+      "error": null,
+      "react_trace": [],
+      "routing_confidence": 0.9,
+      "sql_statement": "SELECT COUNT(*) FROM app_portfolio"
+    },
+    {
+      "scenario_id": "Q4.2",
+      "user_message": "what SQL did you use?",
+      "expected_intent": "SQL_RETRIEVAL",
+      "thread_ts": "test_Q4.2_1767768781.072284",
+      "actual_intent": "SQL_RETRIEVAL",
+      "response": "```sql\nSELECT COUNT(*) FROM app_portfolio\n```",
+      "passed": true,
+      "error": null,
+      "react_trace": [],
+      "routing_confidence": 0.9,
+      "sql_statement": "SELECT COUNT(*) FROM app_portfolio"
+    },
+    {
+      "scenario_id": "Q4.3",
+      "user_message": "show me the SQL",
+      "expected_intent": "SQL_RETRIEVAL",
+      "thread_ts": "test_Q4.3_1767768781.072284",
+      "actual_intent": "SQL_RETRIEVAL",
+      "response": "```sql\nSELECT COUNT(*) FROM app_portfolio\n```",
+      "passed": true,
+      "error": null,
+      "react_trace": [],
+      "routing_confidence": 0.9,
+      "sql_statement": "SELECT COUNT(*) FROM app_portfolio"
+    },
+    {
+      "scenario_id": "Q6.1",
+      "user_message": "Hello, how are you?",
+      "expected_intent": "OFF_TOPIC",
+      "thread_ts": "test_Q6.1_1767768781.072284",
+      "actual_intent": "OFF_TOPIC",
+      "response": "I'm focused on app portfolio analytics. How can I help you with data queries?",
+      "passed": true,
+      "error": null,
+      "react_trace": [],
+      "routing_confidence": 0.7
+    },
+    {
+      "scenario_id": "Q6.2",
+      "user_message": "What's the weather today?",
+      "expected_intent": "OFF_TOPIC",
+      "thread_ts": "test_Q6.2_1767768781.072284",
+      "actual_intent": "OFF_TOPIC",
+      "response": "I'm focused on app portfolio analytics. How can I help you with data queries?",
+      "passed": true,
+      "error": null,
+      "react_trace": [],
+      "routing_confidence": 0.7
+    },
+    {
+      "scenario_id": "Q6.3",
+      "user_message": "Tell me a joke",
+      "expected_intent": "OFF_TOPIC",
+      "thread_ts": "test_Q6.3_1767768781.072284",
+      "actual_intent": "OFF_TOPIC",
+      "response": "I'm focused on app portfolio analytics. How can I help you with data queries?",
+      "passed": true,
+      "error": null,
+      "react_trace": [],
+      "routing_confidence": 0.7
+    },
+    {
+      "scenario_id": "Q1.3",
+      "messages": [
+        {
+          "user_message": "how many android apps do we have?",
+          "expected_intent": "SQL_QUERY"
+        },
+        {
+          "user_message": "what about ios?",
+          "expected_intent": "SQL_QUERY"
+        }
+      ],
+      "thread_ts": "test_thread_001",
+      "responses": [
+        {
+          "message_index": 0,
+          "user_message": "how many android apps do we have?",
+          "expected_intent": "SQL_QUERY",
+          "actual_intent": "SQL_QUERY",
+          "passed": true,
+          "confidence": 0.8,
+          "react_trace": [
+            {
+              "step": 1,
+              "agent_type": "sql_query",
+              "loop_iteration": 1,
+              "note": "Tracing started but no content captured yet"
+            }
+          ]
+        },
+        {
+          "message_index": 1,
+          "user_message": "what about ios?",
+          "expected_intent": "SQL_QUERY",
+          "actual_intent": "SQL_QUERY",
+          "passed": true,
+          "confidence": 0.8,
+          "react_trace": [
+            {
+              "step": 1,
+              "agent_type": "sql_query",
+              "loop_iteration": 1,
+              "note": "Tracing started but no content captured yet"
+            }
+          ]
+        }
+      ],
+      "passed": true,
+      "error": null,
+      "react_traces": {
+        "Q1.3_msg_0": [
+          {
+            "step": 1,
+            "agent_type": "sql_query",
+            "loop_iteration": 1,
+            "note": "Tracing started but no content captured yet"
+          }
+        ],
+        "Q1.3_msg_1": [
+          {
+            "step": 1,
+            "agent_type": "sql_query",
+            "loop_iteration": 1,
+            "note": "Tracing started but no content captured yet"
+          }
+        ]
+      }
+    },
+    {
+      "scenario_id": "Q8.1",
+      "messages": [
+        {
+          "user_message": "which country generates the most revenue?",
+          "expected_intent": "SQL_QUERY"
+        },
+        {
+          "user_message": "export this as csv",
+          "expected_intent": "CSV_EXPORT"
+        },
+        {
+          "user_message": "show me the SQL",
+          "expected_intent": "SQL_RETRIEVAL"
+        }
+      ],
+      "thread_ts": "test_thread_002",
+      "responses": [
+        {
+          "message_index": 0,
+          "user_message": "which country generates the most revenue?",
+          "expected_intent": "SQL_QUERY",
+          "actual_intent": "SQL_QUERY",
+          "passed": true,
+          "confidence": 0.8,
+          "react_trace": [
+            {
+              "step": 1,
+              "agent_type": "sql_query",
+              "loop_iteration": 1,
+              "note": "Tracing started but no content captured yet"
+            }
+          ]
+        },
+        {
+          "message_index": 1,
+          "user_message": "export this as csv",
+          "expected_intent": "CSV_EXPORT",
+          "actual_intent": "CSV_EXPORT",
+          "passed": true,
+          "confidence": 0.9,
+          "react_trace": [
+            {
+              "step": 1,
+              "agent_type": "csv_export",
+              "loop_iteration": 1,
+              "note": "Tracing started but no content captured yet"
+            }
+          ]
+        },
+        {
+          "message_index": 2,
+          "user_message": "show me the SQL",
+          "expected_intent": "SQL_RETRIEVAL",
+          "actual_intent": "SQL_RETRIEVAL",
+          "passed": true,
+          "confidence": 0.9,
+          "react_trace": [
+            {
+              "step": 1,
+              "agent_type": "sql_retrieval",
+              "loop_iteration": 1,
+              "note": "Tracing started but no content captured yet"
+            }
+          ]
+        }
+      ],
+      "passed": true,
+      "error": null,
+      "react_traces": {
+        "Q8.1_msg_0": [
+          {
+            "step": 1,
+            "agent_type": "sql_query",
+            "loop_iteration": 1,
+            "note": "Tracing started but no content captured yet"
+          }
+        ],
+        "Q8.1_msg_1": [
+          {
+            "step": 1,
+            "agent_type": "csv_export",
+            "loop_iteration": 1,
+            "note": "Tracing started but no content captured yet"
+          }
+        ],
+        "Q8.1_msg_2": [
+          {
+            "step": 1,
+            "agent_type": "sql_retrieval",
+            "loop_iteration": 1,
+            "note": "Tracing started but no content captured yet"
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "total": 13,
+    "passed": 13,
+    "failed": 0,
+    "skipped": 0
+  },
+  "react_traces": {}
+}
