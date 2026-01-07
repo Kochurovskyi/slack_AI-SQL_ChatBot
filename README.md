@@ -1127,13 +1127,6 @@ slack_AI-SQL_ChatBot/
 - **Error Handling**: Graceful error handling with user-friendly messages
 - **Documentation**: Complete documentation in `docs/` directory
 
-### ✅ Modern Architecture
-
-- **LangChain ReAct Agents**: Modern agent pattern using `create_agent`
-- **Multi-Agent System**: Specialized agents for different intents
-- **Router Pattern**: Efficient intent classification and routing
-- **Tool-Based Design**: Clear boundaries and reusability
-
 ### ✅ Cost Optimized
 
 - **Smart Caching**: CSV export reuses cached results (no SQL regeneration)
@@ -1175,21 +1168,9 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Acknowledgments
 
-- Built with [LangChain](https://www.langchain.com/) and [LangGraph](https://langchain-ai.github.io/langgraph/)
+- Built with [LangChain](https://www.langchain.com/)
 - Uses [Slack Bolt for Python](https://slack.dev/bolt-python/)
 - Powered by [Google Gemini](https://ai.google.dev/) API
 - Inspired by modern multi-agent architectures
 
----
 
-## Support
-
-For issues, questions, or contributions:
-- **GitHub Issues**: https://github.com/Kochurovskyi/slack_AI-SQL_ChatBot/issues
-- **Documentation**: See `docs/` directory for detailed documentation
-
----
-
-**Status**: ✅ **PRODUCTION READY**  
-**Last Updated**: 2026-01-07  
-**Version**: 1.0.0
