@@ -29,6 +29,32 @@ This design implements all requirements from the AI Engineer Test Task:
 
 ### High-Level Architecture
 
+```mermaid
+graph TD
+    User[User Message<br/>Slack Thread] --> Orchestrator[Agent Orchestrator<br/>Coordinator/Service]
+    Orchestrator --> Router[Router Agent<br/>Intent Classification]
+    
+    Router -->|SQL_QUERY| SQLAgent[SQL Query Agent<br/>Generation + Execution + Formatting]
+    Router -->|CSV_EXPORT| CSVAgent[CSV Export Agent<br/>Uses Cached Results]
+    Router -->|SQL_RETRIEVAL| RetrievalAgent[SQL Retrieval Agent<br/>Uses Cached SQL]
+    Router -->|OFF_TOPIC| OffTopic[Off-Topic Handler<br/>Polite Responses]
+    
+    SQLAgent --> Response[Stream Response<br/>to Slack]
+    CSVAgent --> Response
+    RetrievalAgent --> Response
+    OffTopic --> Response
+    
+    style User fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    style Orchestrator fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    style Router fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    style SQLAgent fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    style CSVAgent fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    style RetrievalAgent fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    style OffTopic fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    style Response fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+```
+
+**Text Flow:**
 ```
 User Message (Slack)
     ↓
@@ -549,6 +575,36 @@ def format_result_tool(results: Dict, question: str) -> str:
 
 ## State Flow
 
+### State Flow Diagram
+
+```mermaid
+stateDiagram-v2
+    [*] --> RouteIntent: User Message
+    
+    RouteIntent --> SQLQueryAgent: SQL_QUERY
+    RouteIntent --> CSVExportAgent: CSV_EXPORT
+    RouteIntent --> SQLRetrievalAgent: SQL_RETRIEVAL
+    RouteIntent --> OffTopicHandler: OFF_TOPIC
+    
+    SQLQueryAgent --> GenerateSQL: Generate SQL
+    GenerateSQL --> ExecuteSQL: Validate
+    ExecuteSQL --> FormatResults: Get Results
+    FormatResults --> CacheResults: Format
+    CacheResults --> [*]: Return Response
+    
+    CSVExportAgent --> GetCachedResults: Retrieve Cache
+    GetCachedResults --> GenerateCSV: Get Data
+    GenerateCSV --> UploadCSV: Create File
+    UploadCSV --> [*]: Confirm Export
+    
+    SQLRetrievalAgent --> GetSQLHistory: Retrieve Cache
+    GetSQLHistory --> FormatSQL: Get SQL
+    FormatSQL --> [*]: Return SQL
+    
+    OffTopicHandler --> GenerateResponse: Process
+    GenerateResponse --> [*]: Return Response
+```
+
 ### SQL Query Path (Primary)
 ```
 route_intent → sql_query_agent (ReAct loop with tools) → cache_results → END
@@ -601,6 +657,30 @@ route_intent → off_topic_handler → END
 4. Suggests appropriate use cases
 
 ## Conditional Edges
+
+### Router Decision Diagram
+
+```mermaid
+graph TD
+    Router[Router Agent<br/>Intent Classification] --> Check{Check Intent}
+    
+    Check -->|SQL_QUERY| SQLAgent[SQL Query Agent]
+    Check -->|CSV_EXPORT| CSVAgent[CSV Export Agent]
+    Check -->|SQL_RETRIEVAL| RetrievalAgent[SQL Retrieval Agent]
+    Check -->|OFF_TOPIC| OffTopic[Off-Topic Handler]
+    
+    SQLAgent --> End[End]
+    CSVAgent --> End
+    RetrievalAgent --> End
+    OffTopic --> End
+    
+    style Router fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    style Check fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    style SQLAgent fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    style CSVAgent fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    style RetrievalAgent fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    style OffTopic fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+```
 
 ### Router Decision (`should_route_to_agent`)
 **From**: `route_intent`
@@ -673,6 +753,27 @@ ReAct (Reasoning + Acting) agents combine **reasoning** (thinking about what to 
 
 ### ReAct Loop Structure
 
+```mermaid
+graph LR
+    Start([Start]) --> Reasoning1[Reasoning:<br/>Agent thinks about task]
+    Reasoning1 --> Action1[Action:<br/>Decide to use tool]
+    Action1 --> Tool[Tool Execution]
+    Tool --> Observation[Observation:<br/>Tool returns result]
+    Observation --> Reasoning2[Reasoning:<br/>Analyze result]
+    Reasoning2 --> Decision{More actions<br/>needed?}
+    Decision -->|Yes| Action1
+    Decision -->|No| FinalAnswer[Final Answer]
+    FinalAnswer --> End([End])
+    
+    style Reasoning1 fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    style Reasoning2 fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    style Action1 fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    style Tool fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    style Observation fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
+    style FinalAnswer fill:#fce4ec,stroke:#880e4f,stroke-width:2px
+```
+
+**Text Flow:**
 ```
 1. Reasoning: Agent thinks about the task
 2. Action: Agent decides to use a tool
@@ -764,6 +865,68 @@ Action: generate_sql_tool(...)  # Retry with correct table name from schema
 
 ## Integration Points
 
+### System Integration Diagram
+
+```mermaid
+graph TB
+    subgraph Slack["Slack Workspace"]
+        User[User]
+        Thread[Slack Thread]
+        Files[File Upload]
+    end
+    
+    subgraph App["Application Layer"]
+        Orchestrator[Agent Orchestrator]
+        Router[Router Agent]
+        Agents[Specialized Agents]
+    end
+    
+    subgraph Services["Services Layer"]
+        SQLService[SQL Service]
+        FormatService[Formatting Service]
+        CSVService[CSV Service]
+    end
+    
+    subgraph Storage["Storage Layer"]
+        MemoryStore[Memory Store<br/>Thread-based Cache]
+        Database[(Database<br/>Monitoring Data)]
+    end
+    
+    subgraph LLM["AI Services"]
+        Gemini[Google Gemini API]
+    end
+    
+    User -->|Message| Thread
+    Thread -->|Event| Orchestrator
+    Orchestrator -->|Route| Router
+    Router -->|Intent| Agents
+    
+    Agents -->|Generate SQL| Gemini
+    Agents -->|Execute Query| SQLService
+    SQLService -->|Query| Database
+    Database -->|Results| SQLService
+    SQLService -->|Data| FormatService
+    FormatService -->|Formatted| Agents
+    
+    Agents -->|Store| MemoryStore
+    Agents -->|Retrieve| MemoryStore
+    MemoryStore -->|History| Agents
+    
+    Agents -->|Generate CSV| CSVService
+    CSVService -->|Upload| Files
+    
+    Agents -->|Stream| Thread
+    Thread -->|Response| User
+    
+    style User fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    style Orchestrator fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    style Router fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    style Agents fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    style MemoryStore fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
+    style Database fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
+    style Gemini fill:#fff4e1,stroke:#f57c00,stroke-width:2px
+```
+
 ### Memory Store Integration
 
 - **Read**: Agents access conversation history via `memory_store.get_messages(thread_ts)`
@@ -797,6 +960,39 @@ Action: generate_sql_tool(...)  # Retry with correct table name from schema
 - **Formatting**: Results formatted with Slack markdown
 
 ## Error Handling
+
+### Error Handling Flow Diagram
+
+```mermaid
+graph TD
+    Start([Operation Starts]) --> Execute[Execute Operation]
+    Execute --> Check{Success?}
+    
+    Check -->|Success| Success[Return Success]
+    Check -->|Error| ErrorType{Error Type?}
+    
+    ErrorType -->|SQL Error| SQLHandler[SQL Error Handler<br/>Format user-friendly message]
+    ErrorType -->|Cache Miss| CacheHandler[Cache Miss Handler<br/>Return helpful message]
+    ErrorType -->|Tool Failure| ToolHandler[Tool Failure Handler<br/>ReAct retry logic]
+    
+    SQLHandler --> Log[Log Error]
+    CacheHandler --> Log
+    ToolHandler --> Retry{Retry?}
+    
+    Retry -->|Yes| Execute
+    Retry -->|No| Escalate[Escalate to DevOps]
+    
+    Log --> UserMessage[Return User Message]
+    Escalate --> UserMessage
+    Success --> End([End])
+    UserMessage --> End
+    
+    style ErrorType fill:#ffebee,stroke:#c62828,stroke-width:2px
+    style SQLHandler fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    style CacheHandler fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    style ToolHandler fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    style Escalate fill:#fce4ec,stroke:#880e4f,stroke-width:2px
+```
 
 ### SQL Execution Errors
 - **Handled**: Gracefully caught and formatted for user
